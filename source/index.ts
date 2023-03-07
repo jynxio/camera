@@ -1,7 +1,8 @@
 import "/style/reset.css";
+import "/style/index.css";
 
 import ThreeScene from "./components/ThreeScene";
 
 const three_scene = new ThreeScene();
 
-document.body.append( three_scene.domElement );
+document.body.prepend( three_scene.getDomElement() );
