@@ -1,4 +1,6 @@
 import * as three from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import F from "../model/F";
 
 class ThreeScene {
 
@@ -15,23 +17,25 @@ class ThreeScene {
         // 初始化三维场景
         const scene = new three.Scene();
         const renderer = new three.WebGLRenderer( { canvas: this.#canvas, antialias: false } );
-        const camera_fp = new three.PerspectiveCamera( 60, innerWidth / innerHeight, 0.1, 1000 ); // 第一人称相机（我）
-        const camera_tp = new three.PerspectiveCamera( 20, 1, 1, 5 );                             // 第三人称相机（被我观察的相机）
+        const camera_fp = new three.PerspectiveCamera( 60, innerWidth / 2 / innerHeight, 1, 2000 ); // 第一人称相机（我）
+        const camera_tp = new three.PerspectiveCamera( 30, 1, 300, 600 );                             // 第三人称相机（被我观察的相机）
         const camera_tp_helper = new three.CameraHelper( camera_tp );
+        const controls = new OrbitControls( camera_fp, renderer.domElement );
 
-        camera_fp.position.set( 0, 0, 10 );
+        camera_fp.position.set( 0, 0, 900 );
         scene.add( camera_fp, camera_tp, camera_tp_helper );
 
+        renderer.autoClearColor = false;
         renderer.setPixelRatio( devicePixelRatio );
         renderer.setSize( innerWidth, innerHeight );
 
         globalThis.addEventListener( "resize", _ => {
 
-            renderer.setPixelRatio( globalThis.devicePixelRatio );
             renderer.setSize( innerWidth, innerHeight );
+            renderer.setPixelRatio( globalThis.devicePixelRatio );
 
-            camera_fp.aspect = innerWidth / innerHeight;
-            camera_tp.aspect = innerWidth / innerHeight;
+            camera_fp.aspect = innerWidth / 2 / innerHeight;
+            camera_tp.aspect = 1;
 
             camera_fp.updateProjectionMatrix();
             camera_tp.updateProjectionMatrix();
@@ -43,7 +47,19 @@ class ThreeScene {
         // 渲染
         const tasks: Function[] = [];
 
-        tasks.push( (): void => void renderer.render( scene, camera_fp ) );
+        tasks.push( (): void => {
+
+            scene.add( camera_tp_helper );
+
+            renderer.setViewport( 0, 0, innerWidth / 2, innerHeight );
+            renderer.render( scene, camera_fp );
+
+            scene.remove( camera_tp_helper );
+
+            renderer.setViewport( innerWidth / 2, ( innerHeight - innerWidth / 2 ) / 2, innerWidth / 2, innerWidth / 2 );
+            renderer.render( scene, camera_tp );
+
+        } );
 
         requestAnimationFrame( function loop () {
 
@@ -63,17 +79,30 @@ class ThreeScene {
             const sin = Math.sin( radian );
             const cos = Math.cos( radian );
 
-            const new_x = 3 * cos + 0 * sin;
-            const new_z = 3 * - sin + 0 * cos;
+            const [ old_x, old_y, old_z ] = [ 250, 0, 0 ];
+            const [ new_x, new_y, new_z ] = [ old_x * cos + old_y * sin, 300, old_x * - sin + old_y * cos ];
 
-            camera_tp.position.set( new_x, 3, new_z );
+            camera_tp.position.set( new_x, new_y, new_z );
             camera_tp.lookAt( 0, 0, 0 );
             camera_tp_helper.update();
 
         } );
 
         // F模型
+        const f = new F();
+        const material = new three.MeshBasicMaterial( { vertexColors: true } );
+        const geometry = new three.BufferGeometry();
 
+        geometry.setIndex( new three.BufferAttribute( f.getIndexes(), 1 ) );
+        geometry.setAttribute( "position", new three.BufferAttribute( f.getPositions(), 3 ) );
+        geometry.setAttribute( "color", new three.BufferAttribute( f.getColors(), 3, true ) );
+        geometry.computeBoundingBox();
+        geometry.computeBoundingSphere();
+
+        const mesh = new three.Mesh( geometry, material );
+
+        mesh.position.set( - 50, - 75, - 15 ); // center: [50, 75, 15]
+        scene.add( mesh );
 
     }
 

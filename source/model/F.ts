@@ -1,7 +1,8 @@
 class F {
 
-    #positions: Float32Array;
-    #colors: Uint8Array;
+    readonly #positions: Float32Array;
+    readonly #indexes: Uint8Array;
+    readonly #colors: Uint8Array;
 
     public constructor () {
 
@@ -102,7 +103,7 @@ class F {
             67,   90,   0,
             67,   90,  30,
 
-            // bottom of middle rung.
+            // bottom of middle rung
             30,   90,   0,
             30,   90,  30,
             67,   90,  30,
@@ -133,6 +134,71 @@ class F {
             0,   0,   0,
             0, 150,  30,
             0, 150,   0,
+        ] );
+        this.#indexes = new Uint8Array( [
+            // left column front
+            0, 1, 2,
+            3, 4, 5,
+
+            // top rung front
+            6, 7, 8,
+            9, 10, 11,
+
+            // middle rung front
+            12, 13, 14,
+            15, 16, 17,
+
+            // left column back
+            18, 19, 20,
+            21, 22, 23,
+
+            // top rung back
+            24, 25, 26,
+            27, 28, 29,
+
+            // middle rung back
+            30, 31, 32,
+            33, 34, 35,
+
+            // top
+            36, 37, 38,
+            39, 40, 41,
+
+            // top rung right
+            42, 43, 44,
+            45, 46, 47,
+
+            // under top rung
+            48, 49, 50,
+            51, 52, 53,
+
+            // between top rung and middle
+            54, 55, 56,
+            57, 58, 59,
+
+            // top of middle rung
+            60, 61, 62,
+            63, 64, 65,
+
+            // right of middle rung
+            66, 67, 68,
+            69, 70, 71,
+
+            // bottom of middle rung
+            72, 73, 74,
+            75, 76, 77,
+
+            // right of bottom
+            78, 79, 80,
+            81, 82, 83,
+
+            // bottom
+            84, 85, 86,
+            87, 88, 89,
+
+            // left side
+            90, 91, 92,
+            93, 94, 95,
         ] );
         this.#colors = new Uint8Array( [
             // left column front
@@ -275,6 +341,12 @@ class F {
     public getColors () {
 
         return this.#colors;
+
+    }
+
+    public getIndexes () {
+
+        return this.#indexes;
 
     }
 
