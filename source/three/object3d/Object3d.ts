@@ -1,45 +1,80 @@
+import { matrix4, drawType } from "../constant/declaration";
+
 class Object3d {
 
-    #colors: Uint8Array;
-    #positions: Float32Array;
-
-    #scale: number[];
-    #matrix: number[];
-    #rotation: number[];
-    #translation: number[];
-
-    #drawCount: number;
-    #drawType: "POINTS" | "LINE_STRIP" | "LINE_LOOP" | "LINES" | "TRIANGLE_STRIP" | "TRIANGLE_FAN" | "TRIANGLES";
+    private drawType: drawType;
+    private colorData: Uint8Array;
+    private positionData: Float32Array;
+    private matrix: matrix4;
 
     public constructor () {
 
-        // TODO 这种模式是否会造成内存泄漏？
+        this.drawType = "LINE_STRIP";
+        this.colorData = new Uint8Array( 0 );
+        this.positionData = new Float32Array( 0 );
+        this.matrix = [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+        ];
+
 
     }
 
-    public getColors () {
+    public getMatrix () {
 
-        const new_colors = new Uint8Array( this.#colors.length );
-
-        for ( let i = 0; i < new_colors.length; i ++ ) new_colors[ i ] = this.#colors[ i ];
+        return this.matrix;
 
     }
 
-    public setColors ( colors: Uint8Array ) {
+    public setMatrix ( matrix: matrix4 ) {
 
-        this.#colors = colors;
+        this.matrix = matrix;
 
         return this;
 
     }
 
-    public getPositions () {
+    public getColorData () {
 
-        const new_positions = new Float32Array( this.#positions.length );
+        return this.colorData;
 
-        for ( let i = 0; i < new_positions.length; i ++ ) new_positions[ i ] = this.#positions[ i ];
+    }
 
-        return new_positions;
+    public setColorData ( colorData: Uint8Array ) {
+
+        this.colorData = colorData;
+
+        return this;
+
+    }
+
+    public getPositionData () {
+
+        return this.positionData;
+
+    }
+
+    public setPositionData ( positionData: Float32Array ) {
+
+        this.positionData = positionData;
+
+        return this;
+
+    }
+
+    public getDrawType () {
+
+        return this.drawType;
+
+    }
+
+    public setDrawType ( drawType: drawType ) {
+
+        this.drawType = drawType;
+
+        return this;
 
     }
 

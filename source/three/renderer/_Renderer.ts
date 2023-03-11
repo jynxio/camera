@@ -12,55 +12,70 @@ import Camera from "../camera/Camera";
 // Code
 class Renderer {
 
-    private gl: WebGL2RenderingContext;
-    private canvas: HTMLCanvasElement;
+    #gl: WebGL2RenderingContext;
+    #canvas: HTMLCanvasElement;
 
-    private vertexShader: WebGLShader;
-    private fragmentShader: WebGLShader;
-    private program: WebGLProgram;
+    #colors: number[];
+    #positions: number[];
 
-    private colorBuffer: WebGLBuffer;
-    private positionBuffer: WebGLBuffer;
-    private colorAttributeLocation: number;
-    private positionAttributeLocation: number;
+    #colorBuffer: WebGLBuffer;
+    #positionBuffer: WebGLBuffer;
 
-    constructor ( canvas?: HTMLCanvasElement ) {
+    #colorAttributeLocation: number;
+    #positionAttributeLocation: number;
 
-        this.canvas = canvas ? canvas : document.createElement( "canvas" );
+    public constructor ( canvas?: HTMLCanvasElement ) {
 
-        const gl = this.canvas.getContext( "webgl2" );
+        //
+        this.#canvas = canvas ? canvas : document.createElement( "canvas" );
 
-        if ( ! gl ) throw new Error( "Your runtime does not support WebGL2." );
+        //
+        const gl = this.#canvas.getContext( "webgl2" );
 
-        this.gl = gl;
+        if ( gl === null ) throw new Error( "Your runtime does not support WebGL2." );
 
-        this.vertexShader = createShader( this.gl, this.gl.VERTEX_SHADER, vertexShaderSource );
-        this.fragmentShader = createShader( this.gl, this.gl.FRAGMENT_SHADER, fragmentShaderSource );
-        this.program = createProgram( this.gl, this.vertexShader, this.fragmentShader );
+        //
+        const vertexShader = createShader( gl, gl.VERTEX_SHADER, vertexShaderSource );
+        const fragmentShader = createShader( gl, gl.FRAGMENT_SHADER, fragmentShaderSource );
+        const program = createProgram( gl, vertexShader, fragmentShader );
 
-        const vao = this.gl.createVertexArray(); // vao: vertex array object
-        this.gl.bindVertexArray( vao );
+        //
+        const vao = gl.createVertexArray(); // vao: vertex array object
 
-        const colorBuffer = this.gl.createBuffer();
-        const positionBuffer = this.gl.createBuffer();
+        gl.bindVertexArray( vao );
 
-        if ( ! colorBuffer || ! positionBuffer ) throw new Error( "It's failed to execute the createBuffer method." );
+        //
+        this.#colors = [];
+        this.#positions = [];
 
-        this.colorBuffer = colorBuffer;
-        this.positionBuffer = positionBuffer;
+        this.#colorBuffer = gl.createBuffer();
+        this.#positionBuffer = gl.createBuffer();
 
-        this.colorAttributeLocation = this.gl.getAttribLocation( this.program, "a_color" );
-        this.positionAttributeLocation = this.gl.getAttribLocation( this.program, "a_position" );
+        this.#colorAttributeLocation = gl.getAttribLocation( program, "a_color" );
+        this.#positionAttributeLocation = gl.getAttribLocation( program, "a_position" );
 
     }
 
     public render ( scene: Scene, camera: Camera ) {
 
-        
+        const colorOption = { size: 3, type: this.#gl.FLOAT, normalize: false, stride: 0, offset: 0 } as const;
+        const positionOption = { size: 3, type: this.#gl.FLOAT, normalize: false, stride: 0, offset: 0 } as const;
+
+        // TODO
 
     }
 
+    /**
+     * 设置视口范围。
+     * @param x - 视口起点的x坐标，0代表画布左侧。
+     * @param y - 视口起点的y坐标，0代表画布底部。
+     * @param w - 视口宽度。
+     * @param h - 视口高度。
+     */
+    public setViewport ( x: number, y: number, w: number, h: number ) {}
+
 }
+
 
 function createShader (
     gl: WebGL2RenderingContext,
