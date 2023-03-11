@@ -1,11 +1,17 @@
+// Declaration
+import { matrix4 } from "../constant/declaration";
+
+// Library
 import Camera from "./Camera";
 import { createOrthographic } from "../math/matrix4";
 
-class PerspectiveCamera extends Camera {
+// Code
+class OrthographicCamera extends Camera {
 
     private width: number;
     private height: number;
     private depth: number;
+    private projectionMatrix: matrix4;
 
     public constructor ( width: number, height: number, depth: number ) {
 
@@ -15,14 +21,14 @@ class PerspectiveCamera extends Camera {
         this.height = height;
         this.depth = depth;
 
-        this.setCameraMatrix( createOrthographic( this.width, this.height, this.depth ) );
+        this.projectionMatrix = createOrthographic( this.width, this.height, this.depth );
 
     }
 
     public setWidth ( width: number ) {
 
         this.width = width;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
@@ -31,7 +37,7 @@ class PerspectiveCamera extends Camera {
     public setHeight ( height: number ) {
 
         this.height = height;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
@@ -40,15 +46,21 @@ class PerspectiveCamera extends Camera {
     public setDepth ( depth: number ) {
 
         this.depth = depth;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
     }
 
-    private update () {
+    public getProjectionMatrix () {
 
-        this.setCameraMatrix( createOrthographic( this.width, this.height, this.depth ) );
+        return this.projectionMatrix;
+
+    }
+
+    private updateProjectionMatrix () {
+
+        this.projectionMatrix = createOrthographic( this.width, this.height, this.depth );
 
         return this;
 
@@ -56,4 +68,4 @@ class PerspectiveCamera extends Camera {
 
 }
 
-export default PerspectiveCamera;
+export default OrthographicCamera;

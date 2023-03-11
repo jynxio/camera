@@ -24,7 +24,7 @@ class Scene {
 
     public get () {
 
-        return Array.from( this.models );
+        return Array.from( this.models ) as Object3d[];
 
     }
 

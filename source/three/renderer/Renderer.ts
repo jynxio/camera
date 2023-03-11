@@ -1,13 +1,16 @@
 // Declaration
-import { drawType } from "../constant/declaration";
+import { drawType, matrix4 } from "../constant/declaration";
 
 // Shader string
-import vertexShaderSource from "../glsl/vertex.glsl";
-import fragmentShaderSource from "../glsl/fragment.glsl";
+import vertexShaderSource from "../glsl/vertex.glsl?raw";
+import fragmentShaderSource from "../glsl/fragment.glsl?raw";
 
 // Library
 import Scene from "../Scene/Scene";
-import Camera from "../camera/Camera";
+import PerspectiveCamera from "../camera/PerspectiveCamera";
+import OrthographicCamera from "../camera/OrthographicCamera";
+import { createOrthographic } from "../math/matrix4";
+import { multiply } from "../math/matrix4";
 
 // Code
 class Renderer {
@@ -15,14 +18,17 @@ class Renderer {
     private gl: WebGL2RenderingContext;
     private canvas: HTMLCanvasElement;
 
+    private program: WebGLProgram;
     private vertexShader: WebGLShader;
     private fragmentShader: WebGLShader;
-    private program: WebGLProgram;
 
     private colorBuffer: WebGLBuffer;
     private positionBuffer: WebGLBuffer;
+
     private colorAttributeLocation: number;
     private positionAttributeLocation: number;
+
+    private matrixUniformLocation: WebGLUniformLocation;
 
     constructor ( canvas?: HTMLCanvasElement ) {
 
@@ -52,11 +58,53 @@ class Renderer {
         this.colorAttributeLocation = this.gl.getAttribLocation( this.program, "a_color" );
         this.positionAttributeLocation = this.gl.getAttribLocation( this.program, "a_position" );
 
+        const matrixUniformLocation = this.gl.getUniformLocation( this.program, "u_matrix" );
+
+        if ( ! matrixUniformLocation ) throw new Error( "It's failed to execute the getUniformLocation method." );
+
+        this.matrixUniformLocation = matrixUniformLocation;
+
     }
 
-    public render ( scene: Scene, camera: Camera ) {
+    public render ( scene: Scene, camera: PerspectiveCamera | OrthographicCamera ) {
 
-        
+        scene.get().forEach( object3d => {
+
+            this.gl.bindBuffer( this.gl.ARRAY_BUFFER, this.positionBuffer );
+            this.gl.bufferData( this.gl.ARRAY_BUFFER, object3d.getPositionData(), this.gl.STATIC_DRAW );
+            this.gl.enableVertexAttribArray( this.positionAttributeLocation );
+            this.gl.vertexAttribPointer( this.positionAttributeLocation, 3, this.gl.FLOAT, false, 0, 0 ); // location, size, type, normalize, stride, offset
+
+            this.gl.bindBuffer( this.gl.ARRAY_BUFFER, this.colorBuffer );
+            this.gl.bufferData( this.gl.ARRAY_BUFFER, object3d.getColorData(), this.gl.STATIC_DRAW );
+            this.gl.enableVertexAttribArray( this.colorAttributeLocation );
+            this.gl.vertexAttribPointer( this.colorAttributeLocation, 3, this.gl.UNSIGNED_BYTE, true, 0, 0 );
+
+            this.gl.viewport( 0, 0, this.gl.canvas.width, this.gl.canvas.height );
+            this.gl.clearColor( 0, 0, 0, 1 );
+            this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
+            this.gl.enable( this.gl.DEPTH_TEST );
+            this.gl.enable( this.gl.CULL_FACE );
+            this.gl.useProgram( this.program );
+
+            const viewMatrix = camera.getViewMatrix();
+            const projectionMatrix = camera.getProjectionMatrix();
+            const transformMatrix = object3d.getTransformMatrix();
+
+            let matrix = projectionMatrix;
+            matrix = multiply( matrix, viewMatrix );
+            matrix = multiply( matrix, transformMatrix );
+
+            this.gl.uniformMatrix4fv( this.matrixUniformLocation, false, matrix );
+            this.gl.drawArrays( createDrawType( this.gl, object3d.getDrawType() ), 0, object3d.getPositionData().length / 3 );
+
+        } );
+
+    }
+
+    public getDomElement () {
+
+        return this.canvas;
 
     }
 

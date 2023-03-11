@@ -1,5 +1,5 @@
 // Declaration
-import { radian } from "../constant/declaration";
+import { radian, matrix4 } from "../constant/declaration";
 
 // Library
 import Camera from "./Camera";
@@ -12,6 +12,7 @@ class PerspectiveCamera extends Camera {
     private aspect: number;
     private near: number;
     private far: number;
+    private projectionMatrix: matrix4;
 
     public constructor ( fov: radian, aspect: number, near: number, far: number ) {
 
@@ -22,14 +23,14 @@ class PerspectiveCamera extends Camera {
         this.near = near;
         this.far = far;
 
-        this.setCameraMatrix( createPerspective( this.fov, this.aspect, this.near, this.far ) );
+        this.projectionMatrix = createPerspective( this.fov, this.aspect, this.near, this.far );
 
     }
 
     public setFov ( fov: radian ) {
 
         this.fov = fov;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
@@ -38,7 +39,7 @@ class PerspectiveCamera extends Camera {
     public setAspect ( aspect: number ) {
 
         this.aspect = aspect;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
@@ -47,7 +48,7 @@ class PerspectiveCamera extends Camera {
     public setNear ( near: number ) {
 
         this.near = near;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
@@ -56,15 +57,21 @@ class PerspectiveCamera extends Camera {
     public setFar ( far: number ) {
 
         this.far = far;
-        this.update();
+        this.updateProjectionMatrix();
 
         return this;
 
     }
 
-    private update () {
+    public getProjectionMatrix () {
 
-        this.setCameraMatrix( createPerspective( this.fov, this.aspect, this.near, this.far ) );
+        return this.projectionMatrix;
+
+    }
+
+    private updateProjectionMatrix () {
+
+        this.projectionMatrix = createPerspective( this.fov, this.aspect, this.near, this.far );
 
         return this;
 

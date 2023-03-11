@@ -5,32 +5,31 @@ class Object3d {
     private drawType: drawType;
     private colorData: Uint8Array;
     private positionData: Float32Array;
-    private matrix: matrix4;
+    private transformMatrix: matrix4;
 
     public constructor () {
 
         this.drawType = "LINE_STRIP";
         this.colorData = new Uint8Array( 0 );
         this.positionData = new Float32Array( 0 );
-        this.matrix = [
+        this.transformMatrix = [
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1,
         ];
 
+    }
+
+    public getTransformMatrix () {
+
+        return this.transformMatrix;
 
     }
 
-    public getMatrix () {
+    public setTransformMatrix ( transformMatrix: matrix4 ) {
 
-        return this.matrix;
-
-    }
-
-    public setMatrix ( matrix: matrix4 ) {
-
-        this.matrix = matrix;
+        this.transformMatrix = transformMatrix;
 
         return this;
 
