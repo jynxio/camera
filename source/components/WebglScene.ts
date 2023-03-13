@@ -8,8 +8,6 @@ class WebglScene {
     public constructor () {
 
         //
-        const f = new three.F();
-        const scene = new three.Scene();
         const renderer = new three.Renderer();
         const canvas = renderer.getDomElement();
 
@@ -18,10 +16,12 @@ class WebglScene {
         canvas.width = Math.round( innerWidth * devicePixelRatio );
         canvas.height = Math.round( innerHeight * devicePixelRatio );
 
-        const camera = new three.PerspectiveCamera( 75, canvas.width / canvas.height, 1, 2000 );
+        const scene = new three.Scene();
+        const tppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 1, 2000 ); // Third-person perspective camera
+        const fppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 1, 2000 ); // First-person perspective camera
 
-        scene.add( f );
-        renderer.render( scene, camera );
+        fppCamera.setCameraMatrix( createTranslation( 1000, 0, 1000 ) );
+        fppCamera.lookAt( [ 0, 0, 0 ] );
 
         //
         const observer = new ResizeObserver( entries => {
@@ -31,15 +31,26 @@ class WebglScene {
                 canvas.width = Math.round( entry.contentBoxSize[ 0 ].inlineSize * devicePixelRatio );
                 canvas.height = Math.round( entry.contentBoxSize[ 0 ].blockSize * devicePixelRatio );
 
-                camera.setAspect( canvas.width / canvas.height );
+                tppCamera.setAspect( canvas.width / canvas.height / 2 );
+                fppCamera.setAspect( canvas.width / canvas.height / 2 );
 
-                renderer.render( scene, camera );
+                renderer.clear();
+                renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
+                renderer.render( scene, fppCamera );
+                renderer.setViewport( canvas.width / 2, 0, canvas.width / 2, canvas.height );
+                renderer.render( scene, tppCamera );
 
             }
 
         } );
 
         observer.observe( canvas, { box: "content-box" } );
+
+        //
+        const f = new three.F();
+
+        f.setTransformMatrix( createTranslation( - 50, - 75, - 15 ) ); // center: [50, 75, 15]
+        scene.add( f );
 
         //
         const startTime = performance.now();
@@ -53,10 +64,14 @@ class WebglScene {
             const rotationMatrix = createYRotation( angle );
             const transformMatrix = multiply( rotationMatrix, translationMatrix );
 
-            camera.setCameraMatrix( transformMatrix );
-            camera.lookAt( [ 0, 0, 0 ] );
+            tppCamera.setCameraMatrix( transformMatrix );
+            tppCamera.lookAt( [ 0, 0, 0 ] );
 
-            renderer.render( scene, camera );
+            renderer.clear();
+            renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
+            renderer.render( scene, fppCamera );
+            renderer.setViewport( canvas.width / 2, 0, canvas.width / 2, canvas.height );
+            renderer.render( scene, tppCamera );
 
         } );
 

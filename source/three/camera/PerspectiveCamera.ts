@@ -27,12 +27,24 @@ class PerspectiveCamera extends Camera {
 
     }
 
+    public getFov () {
+
+        return this.fov;
+
+    }
+
     public setFov ( fov: radian ) {
 
         this.fov = fov;
         this.updateProjectionMatrix();
 
         return this;
+
+    }
+
+    public getAspect () {
+
+        return this.aspect;
 
     }
 
@@ -45,12 +57,24 @@ class PerspectiveCamera extends Camera {
 
     }
 
+    public getNear () {
+
+        return this.near;
+
+    }
+
     public setNear ( near: number ) {
 
         this.near = near;
         this.updateProjectionMatrix();
 
         return this;
+
+    }
+
+    public getFar () {
+
+        return this.far;
 
     }
 

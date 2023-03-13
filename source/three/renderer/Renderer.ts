@@ -15,6 +15,8 @@ import { multiply } from "../math/matrix4";
 // Code
 class Renderer {
 
+    private viewport: [number ,number , number, number];
+
     private gl: WebGL2RenderingContext;
     private canvas: HTMLCanvasElement;
 
@@ -27,12 +29,12 @@ class Renderer {
 
     private colorAttributeLocation: number;
     private positionAttributeLocation: number;
-
     private matrixUniformLocation: WebGLUniformLocation;
 
     constructor ( canvas?: HTMLCanvasElement ) {
 
         this.canvas = canvas ? canvas : document.createElement( "canvas" );
+        this.viewport = [ 0, 0, this.canvas.width, this.canvas.height ];
 
         const gl = this.canvas.getContext( "webgl2" );
 
@@ -80,9 +82,8 @@ class Renderer {
             this.gl.enableVertexAttribArray( this.colorAttributeLocation );
             this.gl.vertexAttribPointer( this.colorAttributeLocation, 3, this.gl.UNSIGNED_BYTE, true, 0, 0 );
 
-            this.gl.viewport( 0, 0, this.gl.canvas.width, this.gl.canvas.height );
+            this.gl.viewport( ... this.getViewport() );
             this.gl.clearColor( 0, 0, 0, 1 );
-            this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
             this.gl.enable( this.gl.DEPTH_TEST );
             this.gl.enable( this.gl.CULL_FACE );
             this.gl.useProgram( this.program );
@@ -105,6 +106,35 @@ class Renderer {
     public getDomElement () {
 
         return this.canvas;
+
+    }
+
+    public getViewport () {
+
+        return this.viewport;
+
+    }
+
+    /**
+     * 设置视域。
+     * @param x 起点的X坐标（0代表画布左边界）
+     * @param y 起点的Y坐标（0代表画布下边界）
+     * @param w 宽度
+     * @param h 高度
+     */
+    public setViewport ( x: number, y: number, w: number, h: number ) {
+
+        this.viewport = [ x, y, w, h ];
+
+        return this;
+
+    }
+
+    public clear () {
+
+        this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT );
+
+        return this;
 
     }
 
