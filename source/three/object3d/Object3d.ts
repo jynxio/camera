@@ -3,14 +3,14 @@ import { matrix4, drawType } from "../constant/declaration";
 class Object3d {
 
     private drawType: drawType;
-    private colorData: Uint8Array;
+    private colorData: Uint8ClampedArray;
     private positionData: Float32Array;
     private transformMatrix: matrix4;
 
     public constructor () {
 
         this.drawType = "LINE_STRIP";
-        this.colorData = new Uint8Array( 0 );
+        this.colorData = new Uint8ClampedArray( 0 );
         this.positionData = new Float32Array( 0 );
         this.transformMatrix = [
             1, 0, 0, 0,
@@ -41,7 +41,7 @@ class Object3d {
 
     }
 
-    public setColorData ( colorData: Uint8Array ) {
+    public setColorData ( colorData: Uint8ClampedArray ) {
 
         this.colorData = colorData;
 

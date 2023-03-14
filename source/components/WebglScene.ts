@@ -1,6 +1,9 @@
 import * as three from "../three/index";
 import { createTranslation, yRotate, createYRotation, multiply } from "../three/math/matrix4";
 
+// BUG fov
+// BUG y轴翻转了，x轴可能也翻转了
+
 class WebglScene {
 
     private domElement: HTMLDivElement;
@@ -17,11 +20,15 @@ class WebglScene {
         canvas.height = Math.round( innerHeight * devicePixelRatio );
 
         const scene = new three.Scene();
-        const tppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 1, 2000 ); // Third-person perspective camera
-        const fppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 1, 2000 ); // First-person perspective camera
+        const tppCamera = new three.PerspectiveCamera( 50, canvas.width / canvas.height / 2, 200, 500 ); // Third-person perspective camera
+        const fppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 500, 3000 ); // First-person perspective camera (me)
 
-        fppCamera.setCameraMatrix( createTranslation( 1000, 0, 1000 ) );
+        fppCamera.setCameraMatrix( createTranslation( 1500, 0, 1500 ) );
         fppCamera.lookAt( [ 0, 0, 0 ] );
+
+        const tppCameraHelper = new three.CameraHelper( tppCamera );
+
+        scene.add( tppCameraHelper );
 
         //
         const observer = new ResizeObserver( entries => {
@@ -33,6 +40,8 @@ class WebglScene {
 
                 tppCamera.setAspect( canvas.width / canvas.height / 2 );
                 fppCamera.setAspect( canvas.width / canvas.height / 2 );
+
+                tppCameraHelper.updateProjection();
 
                 renderer.clear();
                 renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
@@ -54,7 +63,7 @@ class WebglScene {
 
         //
         const startTime = performance.now();
-        const translationMatrix = createTranslation( 500, 500, 500 );
+        const translationMatrix = createTranslation( 150, 300, 150 );
 
         requestAnimationFrame( function loop () {
 
@@ -66,6 +75,8 @@ class WebglScene {
 
             tppCamera.setCameraMatrix( transformMatrix );
             tppCamera.lookAt( [ 0, 0, 0 ] );
+
+            tppCameraHelper.updateTransform();
 
             renderer.clear();
             renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
