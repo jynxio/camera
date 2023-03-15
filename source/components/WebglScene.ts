@@ -1,14 +1,47 @@
 import * as three from "../three/index";
+import Stats from "stats.js";
+import Gui from "lil-gui";
 import { createTranslation, yRotate, createYRotation, multiply } from "../three/math/matrix4";
-
-// BUG fov
-// BUG y轴翻转了，x轴可能也翻转了
+import { degreeToRadian } from "../three/math/angle";
 
 class WebglScene {
 
     private domElement: HTMLDivElement;
 
     public constructor () {
+
+        // Stats panel
+        const stats = new Stats();
+
+        stats.showPanel( 0 );
+
+        // The option of the third-person perspective camera (tppCamera)
+        const option = {
+            fov: {
+                min: 10,
+                max: 60,
+                step: 0.5,
+                value: 30,
+            },
+            aspect: {
+                min: 0.5,
+                max: 2,
+                step: 0.015,
+                value: 1,
+            },
+            near: {
+                min: 100,
+                max: 300,
+                step: 2,
+                value: 200,
+            },
+            far: {
+                min: 400,
+                max: 600,
+                step: 2,
+                value: 500,
+            },
+        };
 
         //
         const renderer = new three.Renderer();
@@ -20,10 +53,20 @@ class WebglScene {
         canvas.height = Math.round( innerHeight * devicePixelRatio );
 
         const scene = new three.Scene();
-        const tppCamera = new three.PerspectiveCamera( 50, canvas.width / canvas.height / 2, 200, 500 ); // Third-person perspective camera
-        const fppCamera = new three.PerspectiveCamera( 75, canvas.width / canvas.height / 2, 500, 3000 ); // First-person perspective camera (me)
+        const tppCamera = new three.PerspectiveCamera( // Third-person perspective camera
+            degreeToRadian( option.fov.value ),
+            option.aspect.value,
+            option.near.value,
+            option.far.value,
+        );
+        const fppCamera = new three.PerspectiveCamera( // First-person perspective camera (me)
+            degreeToRadian( 60 ),
+            canvas.width / canvas.height / 2,
+            1,
+            2000
+        );
 
-        fppCamera.setCameraMatrix( createTranslation( 1500, 0, 1500 ) );
+        fppCamera.setCameraMatrix( createTranslation( 400, 400, 400 ) );
         fppCamera.lookAt( [ 0, 0, 0 ] );
 
         const tppCameraHelper = new three.CameraHelper( tppCamera );
@@ -35,18 +78,23 @@ class WebglScene {
 
             for ( const entry of entries ) {
 
+                //
                 canvas.width = Math.round( entry.contentBoxSize[ 0 ].inlineSize * devicePixelRatio );
                 canvas.height = Math.round( entry.contentBoxSize[ 0 ].blockSize * devicePixelRatio );
 
-                tppCamera.setAspect( canvas.width / canvas.height / 2 );
+                //
                 fppCamera.setAspect( canvas.width / canvas.height / 2 );
 
-                tppCameraHelper.updateProjection();
-
+                //
                 renderer.clear();
                 renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
                 renderer.render( scene, fppCamera );
-                renderer.setViewport( canvas.width / 2, 0, canvas.width / 2, canvas.height );
+
+                const length = Math.min( canvas.width / 2, canvas.height );
+
+                length === canvas.width / 2
+                    ? renderer.setViewport( canvas.width / 2, ( canvas.height - length ) / 2, length, length )
+                    : renderer.setViewport( ( canvas.width / 2 - length ) / 2, 0, length, length );
                 renderer.render( scene, tppCamera );
 
             }
@@ -69,6 +117,7 @@ class WebglScene {
 
             requestAnimationFrame( loop );
 
+            //
             const angle = ( performance.now() - startTime ) / 1000 * Math.PI / 10;
             const rotationMatrix = createYRotation( angle );
             const transformMatrix = multiply( rotationMatrix, translationMatrix );
@@ -78,18 +127,28 @@ class WebglScene {
 
             tppCameraHelper.updateTransform();
 
+            //
+            stats.begin();
+
             renderer.clear();
             renderer.setViewport( 0, 0, canvas.width / 2, canvas.height );
             renderer.render( scene, fppCamera );
-            renderer.setViewport( canvas.width / 2, 0, canvas.width / 2, canvas.height );
+
+            const length = Math.min( canvas.width / 2, canvas.height );
+
+            length === canvas.width / 2
+                ? renderer.setViewport( canvas.width / 2, ( canvas.height - length ) / 2, length, length )
+                : renderer.setViewport( ( canvas.width / 2 - length ) / 2, 0, length, length );
             renderer.render( scene, tppCamera );
+
+            stats.end();
 
         } );
 
 
         //
         this.domElement = document.createElement( "div" );
-        this.domElement.append( renderer.getDomElement() );
+        this.domElement.append( renderer.getDomElement(), stats.dom );
 
     }
 

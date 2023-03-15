@@ -148,10 +148,10 @@ function createPerspective ( fov: radian, aspect: number, near: number, far: num
     const rangeInv = 1.0 / ( near - far );
 
     return [
-        - f / aspect, 0, 0, 0,
-        0, - f, 0, 0,
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
         0, 0, ( near + far ) * rangeInv, - 1,
-        0, 0, near * far * rangeInv * 2, 0,
+        0, 0, near * far * rangeInv * 2, 0
     ] as matrix4;
 
 }

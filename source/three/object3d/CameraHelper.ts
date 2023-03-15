@@ -101,8 +101,8 @@ class CameraHelper extends Object3d {
         [ positionData[ 66 ], positionData[ 67 ], positionData[ 68 ] ] = [ + nearX, - nearY, - nearZ ];
         [ positionData[ 69 ], positionData[ 70 ], positionData[ 71 ] ] = [ + nearX, + nearY, - nearZ ];
 
-        [ colorData[ 48 ], colorData[ 49 ], colorData[ 50 ] ] = [ 255, 255, 255 ]; // TESTING
-        [ colorData[ 51 ], colorData[ 52 ], colorData[ 53 ] ] = [ 255, 255, 255 ]; // TESTING
+        [ colorData[ 48 ], colorData[ 49 ], colorData[ 50 ] ] = [ 200, 59, 52 ];
+        [ colorData[ 51 ], colorData[ 52 ], colorData[ 53 ] ] = [ 200, 59, 52 ];
         [ colorData[ 54 ], colorData[ 55 ], colorData[ 56 ] ] = [ 200, 59, 52 ];
         [ colorData[ 57 ], colorData[ 58 ], colorData[ 59 ] ] = [ 200, 59, 52 ];
         [ colorData[ 60 ], colorData[ 61 ], colorData[ 62 ] ] = [ 200, 59, 52 ];
@@ -135,10 +135,10 @@ class CameraHelper extends Object3d {
         [ positionData[ 102 ], positionData[ 103 ], positionData[ 104 ] ] = [ + nearX, 0, - nearZ ];
         [ positionData[ 105 ], positionData[ 106 ], positionData[ 107 ] ] = [ - nearX, 0, - nearZ ];
 
-        [ colorData[ 96  ], colorData[ 97  ], colorData[ 98  ] ] = [ 88, 88, 88 ];
-        [ colorData[ 99  ], colorData[ 100 ], colorData[ 101 ] ] = [ 88, 88, 88 ];
-        [ colorData[ 102 ], colorData[ 103 ], colorData[ 104 ] ] = [ 88, 88, 88 ];
-        [ colorData[ 105 ], colorData[ 106 ], colorData[ 107 ] ] = [ 88, 88, 88 ];
+        [ colorData[ 96  ], colorData[ 97  ], colorData[ 98  ] ] = [ 50, 50, 50 ];
+        [ colorData[ 99  ], colorData[ 100 ], colorData[ 101 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 102 ], colorData[ 103 ], colorData[ 104 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 105 ], colorData[ 106 ], colorData[ 107 ] ] = [ 50, 50, 50 ];
 
         // The cross wire of the far face
         [ positionData[ 108 ], positionData[ 109 ], positionData[ 110 ] ] = [ 0, + farY, - farZ ];
@@ -146,10 +146,10 @@ class CameraHelper extends Object3d {
         [ positionData[ 114 ], positionData[ 115 ], positionData[ 116 ] ] = [ + farX, 0, - farZ ];
         [ positionData[ 117 ], positionData[ 118 ], positionData[ 119 ] ] = [ - farX, 0, - farZ ];
 
-        [ colorData[ 108 ], colorData[ 109 ], colorData[ 110 ] ] = [ 88, 88, 88 ];
-        [ colorData[ 111 ], colorData[ 112 ], colorData[ 113 ] ] = [ 88, 88, 88 ];
-        [ colorData[ 114 ], colorData[ 115 ], colorData[ 116 ] ] = [ 88, 88, 88 ];
-        [ colorData[ 117 ], colorData[ 118 ], colorData[ 119 ] ] = [ 88, 88, 88 ];
+        [ colorData[ 108 ], colorData[ 109 ], colorData[ 110 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 111 ], colorData[ 112 ], colorData[ 113 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 114 ], colorData[ 115 ], colorData[ 116 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 117 ], colorData[ 118 ], colorData[ 119 ] ] = [ 50, 50, 50 ];
 
         // Triangle
         const a = [ + nearX * 0.6, nearY * 1.1, - nearZ ];

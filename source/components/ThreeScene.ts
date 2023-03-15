@@ -20,7 +20,7 @@ class ThreeScene {
         const camera_fp = new three.PerspectiveCamera( 60, innerWidth / 2 / innerHeight, 1, 2000 ); // 第一人称相机（我）
         const camera_tp = new three.PerspectiveCamera( 30, 1, 300, 600 );                             // 第三人称相机（被我观察的相机）
         const camera_tp_helper = new three.CameraHelper( camera_tp );
-        const controls = new OrbitControls( camera_fp, renderer.domElement );
+        // const controls = new OrbitControls( camera_fp, renderer.domElement );
 
         camera_fp.position.set( 0, 0, 900 );
         scene.add( camera_fp, camera_tp, camera_tp_helper );
