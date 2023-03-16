@@ -17,39 +17,54 @@ class CameraHelper extends Object3d {
 
     }
 
-    public updateProjection () {
-
-        this.camera instanceof PerspectiveCamera
-        ? this.updateForPerspectiveCamera( this.camera )
-        : this.updateForOrthographicCamera( this.camera );
-
-        return this;
-
-    }
-
     public updateTransform () {
 
         this.setTransformMatrix( [ ... this.camera.getCameraMatrix() ] );
 
     }
 
-    private updateForPerspectiveCamera ( camera: PerspectiveCamera ) {
+    public updateProjection () {
+
+        let nearX: number, nearY: number, nearZ: number;
+        let farX: number, farY: number, farZ: number;
+
+        if ( this.camera instanceof PerspectiveCamera ) {
+
+            const fov = this.camera.getFov();
+            const aspect = this.camera.getAspect();
+            const near = this.camera.getNear();
+            const far = this.camera.getFar();
+
+            nearY = near * Math.tan( fov / 2 );
+            nearX = nearY * aspect;
+            nearZ = near;
+
+            farY = far / near * nearY;
+            farX = far / near * nearX;
+            farZ = far;
+
+        } else {
+
+            const width = this.camera.getWidth();
+            const height = this.camera.getHeight();
+            const near = this.camera.getNear();
+            const far = this.camera.getFar();
+
+            nearX = width / 2;
+            nearY = height / 2;
+            nearZ = near;
+
+            farX = nearX;
+            farY = nearY;
+            farZ = far;
+
+        }
 
         //
-        const fov = camera.getFov();
-        const aspect = camera.getAspect();
-        const near = camera.getNear();
-        const far = camera.getFar();
-
-        //
-        const colorData = new Uint8ClampedArray( 46 * 3 );
-        const positionData = new Float32Array( 46 * 3 );
+        const colorData = new Uint8ClampedArray( 50 * 3 );
+        const positionData = new Float32Array( 50 * 3 );
 
         // The four lines connecting the origin to the near face
-        const nearY = near * Math.tan( fov / 2 );
-        const nearX = nearY * aspect;
-        const nearZ = near;
-
         [ positionData[ 0  ], positionData[ 1  ], positionData[ 2  ] ] = [ 0, 0, 0 ];
         [ positionData[ 3  ], positionData[ 4  ], positionData[ 5  ] ] = [ + nearX, + nearY, - nearZ ];
         [ positionData[ 6  ], positionData[ 7  ], positionData[ 8  ] ] = [ 0, 0, 0 ];
@@ -69,10 +84,6 @@ class CameraHelper extends Object3d {
         [ colorData[ 21 ], colorData[ 22 ], colorData[ 23 ] ] = [ 200, 59, 52 ];
 
         // The four lines connecting the near face to the far face
-        const farY = far / near * nearY;
-        const farX = far / near * nearX;
-        const farZ = far;
-
         [ positionData[ 24 ], positionData[ 25 ], positionData[ 26 ] ] = [ + nearX, + nearY, - nearZ ];
         [ positionData[ 27 ], positionData[ 28 ], positionData[ 29 ] ] = [ + farX, + farY, - farZ ];
         [ positionData[ 30 ], positionData[ 31 ], positionData[ 32 ] ] = [ - nearX, + nearY, - nearZ ];
@@ -170,19 +181,22 @@ class CameraHelper extends Object3d {
         [ colorData[ 132 ], colorData[ 133 ], colorData[ 134 ] ] = [ 101, 213, 63 ];
         [ colorData[ 135 ], colorData[ 136 ], colorData[ 137 ] ] = [ 101, 213, 63 ];
 
+        // Through line
+        [ positionData[ 138 ], positionData[ 139 ], positionData[ 140 ] ] = [ 0, 0, 0 ];
+        [ positionData[ 141 ], positionData[ 142 ], positionData[ 143 ] ] = [ 0, 0, - nearZ ];
+        [ positionData[ 144 ], positionData[ 145 ], positionData[ 146 ] ] = [ 0, 0, - nearZ ];
+        [ positionData[ 147 ], positionData[ 148 ], positionData[ 149 ] ] = [ 0, 0, - farZ ];
+
+        [ colorData[ 138 ], colorData[ 139 ], colorData[ 140 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 141 ], colorData[ 142 ], colorData[ 143 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 144 ], colorData[ 145 ], colorData[ 146 ] ] = [ 50, 50, 50 ];
+        [ colorData[ 147 ], colorData[ 148 ], colorData[ 149 ] ] = [ 50, 50, 50 ];
+
         //
         this.setColorData( colorData );
         this.setPositionData( positionData );
 
         //
-        return this;
-
-    }
-
-    private updateForOrthographicCamera ( camera: OrthographicCamera ) {
-
-        // TODO
-
         return this;
 
     }
