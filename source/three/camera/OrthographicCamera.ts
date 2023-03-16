@@ -10,18 +10,20 @@ class OrthographicCamera extends Camera {
 
     private width: number;
     private height: number;
-    private depth: number;
+    private near: number;
+    private far: number;
     private projectionMatrix: matrix4;
 
-    public constructor ( width: number, height: number, depth: number ) {
+    public constructor ( width: number, height: number, near: number, far: number ) {
 
         super();
 
         this.width = width;
         this.height = height;
-        this.depth = depth;
+        this.near = near;
+        this.far = far;
 
-        this.projectionMatrix = createOrthographic( this.width, this.height, this.depth );
+        this.projectionMatrix = createOrthographic( this.width, this.height, this.near, this.far );
 
     }
 
@@ -43,9 +45,18 @@ class OrthographicCamera extends Camera {
 
     }
 
-    public setDepth ( depth: number ) {
+    public setNear ( near: number ) {
 
-        this.depth = depth;
+        this.near = near;
+        this.updateProjectionMatrix();
+
+        return this;
+
+    }
+
+    public setFar ( far: number ) {
+
+        this.far = far;
         this.updateProjectionMatrix();
 
         return this;
@@ -60,7 +71,7 @@ class OrthographicCamera extends Camera {
 
     private updateProjectionMatrix () {
 
-        this.projectionMatrix = createOrthographic( this.width, this.height, this.depth );
+        this.projectionMatrix = createOrthographic( this.width, this.height, this.near, this.far );
 
         return this;
 
