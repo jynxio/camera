@@ -27,12 +27,24 @@ class OrthographicCamera extends Camera {
 
     }
 
+    public getWidth () {
+
+        return this.width;
+
+    }
+
     public setWidth ( width: number ) {
 
         this.width = width;
         this.updateProjectionMatrix();
 
         return this;
+
+    }
+
+    public getHeight () {
+
+        return this.height;
 
     }
 
@@ -45,12 +57,24 @@ class OrthographicCamera extends Camera {
 
     }
 
+    public getNear () {
+
+        return this.near;
+
+    }
+
     public setNear ( near: number ) {
 
         this.near = near;
         this.updateProjectionMatrix();
 
         return this;
+
+    }
+
+    public getFar () {
+
+        return this.far;
 
     }
 
