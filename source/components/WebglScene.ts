@@ -1,12 +1,12 @@
 import * as three from "../three/index";
 import Stats from "stats.js";
 import Gui from "lil-gui";
-import { createTranslation, yRotate, createYRotation, multiply } from "../three/math/matrix4";
+import { createTranslation, createYRotation, multiply } from "../three/math/matrix4";
 import { degreeToRadian } from "../three/math/angle";
 
 class WebglScene {
 
-    private domElement: HTMLDivElement;
+    private domElement: HTMLCanvasElement;
 
     public constructor () {
 
@@ -14,57 +14,62 @@ class WebglScene {
         const stats = new Stats();
 
         stats.showPanel( 0 );
+        stats.dom.style.setProperty( "right", "0" );
+        stats.dom.style.setProperty( "left", "auto" );
+        document.body.prepend( stats.dom );
 
         // Gui panel
+        let tpCameraName = "perspective" as "perspective" | "orthographic";
+
         const gui = new Gui().close();
-        const guiOption = {
-            perspective: { fov: 40, aspect: 1, near: 100, far: 400 },      // The option of the third-person orthographic camera
-            orthographic: { width: 200, height: 200, near: 200, far: 400 }, // The option of the third-person perspective camera
-            who: "perspective" as "perspective" | "orthographic",
-            switch: () => {
+        const tppCameraOption = { fov: 40, aspect: 1, near: 100, far: 400 };
+        const tpoCameraOption = { width: 200, height: 200, near: 200, far: 400 };
 
-                guiOption.who = guiOption.who === "perspective" ? "orthographic" : "perspective";
+        const tppCameraControllers = [
+            gui.add( tppCameraOption, "fov", 10, 70, 0.6 ).name( "Fov" ).onChange( updateTpCamera ).show(),
+            gui.add( tppCameraOption, "aspect", 0.5, 2, 0.015 ).name( "Aspect" ).onChange( updateTpCamera ).show(),
+            gui.add( tppCameraOption, "near", 50, 300, 2.5 ).name( "Near" ).onChange( updateTpCamera ).show(),
+            gui.add( tppCameraOption, "far", 300, 500, 2 ).name( "Far" ).onChange( updateTpCamera ).show(),
+        ];
+        const tpoCameraControllers = [
+            gui.add( tpoCameraOption, "width", 100, 400, 3 ).name( "Width" ).onChange( updateTpCamera ).hide(),
+            gui.add( tpoCameraOption, "height", 100, 400, 3 ).name( "Height" ).onChange( updateTpCamera ).hide(),
+            gui.add( tpoCameraOption, "near", 100, 300, 2 ).name( "Near" ).onChange( updateTpCamera ).hide(),
+            gui.add( tpoCameraOption, "far", 300, 600, 3 ).name( "Far" ).onChange( updateTpCamera ).hide(),
+        ];
+        const switchController = gui.add( { switch: switchTpCamera }, "switch" );
 
-                if ( guiOption.who === "perspective" ) {
+        function switchTpCamera () {
 
-                    [ tppFov, tppAspect, tppNear, tppFar ].forEach( item => item.show() );
-                    [ tpoWidth, tpoHeight, tpoNear, tpoFar ].forEach( item => item.hide() );
+            tpCameraName = tpCameraName === "perspective" ? "orthographic" : "perspective";
 
-                    tpCamera = tppCamera;
-                    tpCameraHelper = tppCameraHelper;
-                    tpCameraViewport = createTpViewport( canvas, tppCamera );
+            if ( tpCameraName === "perspective" ) {
 
-                    return;
+                tppCameraControllers.forEach( controller => controller.show() );
+                tpoCameraControllers.forEach( controller => controller.hide() );
 
-                }
+                tpCamera = tppCamera;
+                tpCameraHelper = tppCameraHelper;
+                tpCameraViewport = createTpViewport( canvas, tppCamera );
 
-                [ tppFov, tppAspect, tppNear, tppFar ].forEach( item => item.hide() );
-                [ tpoWidth, tpoHeight, tpoNear, tpoFar ].forEach( item => item.show() );
+                return;
 
-                tpCamera = tpoCamera;
-                tpCameraHelper = tpoCameraHelper;
-                tpCameraViewport = createTpViewport( canvas, tpoCamera );
+            }
 
-            },
-        };
+            tppCameraControllers.forEach( controller => controller.hide() );
+            tpoCameraControllers.forEach( controller => controller.show() );
 
-        const tppFov = gui.add( guiOption.perspective, 'fov', 10, 70, 0.6 ).name( "Fov" ).onChange( updateTpCamera );
-        const tppAspect = gui.add( guiOption.perspective, 'aspect', 0.5, 2, 0.015 ).name( "Aspect" ).onChange( updateTpCamera );
-        const tppNear = gui.add( guiOption.perspective, 'near', 50, 300, 2.5 ).name( "Near" ).onChange( updateTpCamera );
-        const tppFar = gui.add( guiOption.perspective, 'far', 300, 500, 2 ).name( "Far" ).onChange( updateTpCamera );
+            tpCamera = tpoCamera;
+            tpCameraHelper = tpoCameraHelper;
+            tpCameraViewport = createTpViewport( canvas, tpoCamera );
 
-        const tpoWidth = gui.add( guiOption.orthographic, "width", 100, 400, 3 ).name( "Width" ).onChange( updateTpCamera ).hide();
-        const tpoHeight = gui.add( guiOption.orthographic, "height", 100, 400, 3 ).name( "Height" ).onChange( updateTpCamera ).hide();
-        const tpoNear = gui.add( guiOption.orthographic, "near", 100, 300, 2 ).name( "Near" ).onChange( updateTpCamera ).hide();
-        const tpoFar = gui.add( guiOption.orthographic, "far", 300, 600, 3 ).name( "Far" ).onChange( updateTpCamera ).hide();
-
-        const tpSwitch = gui.add( guiOption, "switch" ).name( "Switch" );
+        }
 
         function updateTpCamera () {
-            console.log( 1 );
+
             tpCamera instanceof three.PerspectiveCamera
-                ? tpCamera.setFov( degreeToRadian( guiOption.perspective.fov ) ).setAspect( guiOption.perspective.aspect ).setNear( guiOption.perspective.near ).setFar( guiOption.perspective.far )
-                : tpCamera.setWidth( guiOption.orthographic.width ).setHeight( guiOption.orthographic.height ).setNear( guiOption.orthographic.near ).setFar( guiOption.orthographic.far );
+                ? tpCamera.setFov( degreeToRadian( tppCameraOption.fov ) ).setAspect( tppCameraOption.aspect ).setNear( tppCameraOption.near ).setFar( tppCameraOption.far )
+                : tpCamera.setWidth( tpoCameraOption.width ).setHeight( tpoCameraOption.height ).setNear( tpoCameraOption.near ).setFar( tpoCameraOption.far );
 
             tpCameraHelper.updateProjection();
             tpCameraViewport = createTpViewport( canvas, tpCamera );
@@ -75,6 +80,7 @@ class WebglScene {
         const renderer = new three.Renderer();
         const canvas = renderer.getDomElement();
 
+        this.domElement = canvas;
         canvas.style.setProperty( "inline-size", "100vw" );
         canvas.style.setProperty( "block-size", "100vh" );
         canvas.width = Math.round( innerWidth * devicePixelRatio );
@@ -93,13 +99,13 @@ class WebglScene {
         fpCamera.setCameraMatrix( createTranslation( 400, 400, 400 ) );
         fpCamera.lookAt( [ 0, 0, 0 ] );
 
-        const tppCamera = new three.PerspectiveCamera( degreeToRadian( guiOption.perspective.fov ), guiOption.perspective.aspect, guiOption.perspective.near, guiOption.perspective.far ); // Third-person perspective camera
-        const tpoCamera = new three.OrthographicCamera( guiOption.orthographic.width, guiOption.orthographic.height, guiOption.orthographic.near, guiOption.orthographic.far );            // Third-person orthographic camera
+        const tppCamera = new three.PerspectiveCamera( degreeToRadian( tppCameraOption.fov ), tppCameraOption.aspect, tppCameraOption.near, tppCameraOption.far ); // Third-person perspective camera
+        const tpoCamera = new three.OrthographicCamera( tpoCameraOption.width, tpoCameraOption.height, tpoCameraOption.near, tpoCameraOption.far );            // Third-person orthographic camera
         const tppCameraHelper = new three.CameraHelper( tppCamera );
         const tpoCameraHelper = new three.CameraHelper( tpoCamera );
 
-        let tpCamera = guiOption.who === "perspective" ? tppCamera : tpoCamera;
-        let tpCameraHelper = guiOption.who === "perspective" ? tppCameraHelper : tpoCameraHelper;
+        let tpCamera = tpCameraName === "perspective" ? tppCamera : tpoCamera;
+        let tpCameraHelper = tpCameraName === "perspective" ? tppCameraHelper : tpoCameraHelper;
 
         let fpCameraViewport = createFpViewport( canvas );
         let tpCameraViewport = createTpViewport( canvas, tpCamera );
@@ -131,13 +137,8 @@ class WebglScene {
 
         requestAnimationFrame( function loop () {
 
-            //
             stats.begin();
 
-            //
-            requestAnimationFrame( loop );
-
-            //
             const angle = ( performance.now() - startTime ) / 1000 * Math.PI / 10;
             const rotationMatrix = createYRotation( angle );
             const transformMatrix = multiply( rotationMatrix, translationMatrix );
@@ -146,7 +147,6 @@ class WebglScene {
             tpCamera.lookAt( [ 0, 0, 0 ] );
             tpCameraHelper.updateTransform();
 
-            //
             renderer.clear();
 
             scene.add( tpCameraHelper );
@@ -157,15 +157,10 @@ class WebglScene {
             renderer.setViewport( ... tpCameraViewport );
             renderer.render( scene, tpCamera );
 
-            //
+            requestAnimationFrame( loop );
             stats.end();
 
         } );
-
-
-        // Dom
-        this.domElement = document.createElement( "div" );
-        this.domElement.append( renderer.getDomElement(), stats.dom );
 
     }
 
@@ -178,7 +173,7 @@ class WebglScene {
 }
 
 /**
- * 创建第一人称相机的视口范围
+ * 创建第一人称相机的视口范围，如果画布的尺寸发生了改变，那么就应当调用该方法来创建新的视口。
  */
 function createFpViewport ( canvas: HTMLCanvasElement ): [ number, number, number, number ] {
 
@@ -189,7 +184,7 @@ function createFpViewport ( canvas: HTMLCanvasElement ): [ number, number, numbe
 }
 
 /**
- * 创建第三人称相机的视口范围
+ * 创建第三人称相机的视口范围，如果画布的尺寸或相机的宽高比发生了改变，那么就应当调用该方法来创建新的视口。
  */
 function createTpViewport ( canvas: HTMLCanvasElement, camera: three.PerspectiveCamera | three.OrthographicCamera ): [ number, number, number, number ] {
 
@@ -206,7 +201,7 @@ function createTpViewport ( canvas: HTMLCanvasElement, camera: three.Perspective
 
         return canvas.width >= canvas.height
             ? [ canvas.width / 2, viewportOffset, viewportWidth, viewportHeight ]
-            : [ 0, canvas.height / 2, viewportWidth, viewportHeight ];
+            : [ 0, canvas.height / 2 + viewportOffset, viewportWidth, viewportHeight ];
 
     }
 
@@ -215,7 +210,7 @@ function createTpViewport ( canvas: HTMLCanvasElement, camera: three.Perspective
     const viewportOffset = ( containerWidth - viewportWidth ) / 2;
 
     return canvas.width >= canvas.height
-        ? [ canvas.width / 2 + viewportOffset, canvas.height / 2, viewportWidth, viewportHeight ]
+        ? [ canvas.width / 2 + viewportOffset, 0, viewportWidth, viewportHeight ]
         : [ viewportOffset, canvas.height / 2, viewportWidth, viewportHeight ];
 
 }
