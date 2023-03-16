@@ -159,14 +159,13 @@ function createPerspective ( fov: radian, aspect: number, near: number, far: num
 /**
  * 创建正射投影矩阵
  */
-function createOrthographic ( width: number, height: number, depth: number ) {
+function createOrthographic ( width: number, height: number, near: number, far: number ) {
 
-    // Note: This matrix flips the Y axis so 0 is at the top
     return [
         2 / width, 0, 0, 0,
-        0, - 2 / height, 0, 0,
-        0, 0, 2 / depth, 0,
-        - 1, 1, 0, 1,
+        0, 2 / height, 0, 0,
+        0, 0, 2 / ( near - far ), 0,
+        0, 0, ( far + near ) / ( near - far ), 1
     ];
 
 }
