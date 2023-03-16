@@ -6,7 +6,8 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "start": "vite"
+        "start": "vite --mode development",
+        "build": "vite build --mode production"
     },
     "devDependencies": {
         "@types/stats.js": "^0.17.0",
