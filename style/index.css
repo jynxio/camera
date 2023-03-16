@@ -1,3 +1,13 @@
 html, body {
     background-color: black;
 }
+
+.lil-gui {
+    --width: 12rem;
+    --name-width: 3rem;
+    right: 0 !important;
+}
+
+.lil-gui .widget > input {
+    display: none;
+}

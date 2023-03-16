@@ -5,7 +5,9 @@ import "/style/index.css";
 import WebglScene from "./components/WebglScene";
 
 // const three_scene = new ThreeScene();
+// document.body.prepend( three_scene.getDomElement() );
+
+
 const webglScene = new WebglScene();
 
-// document.body.prepend( three_scene.getDomElement() );
 document.body.prepend( webglScene.getDomElement() );
